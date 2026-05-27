@@ -537,7 +537,7 @@ description: 当 DeepSeek 需要遵循我的自定义工作流时使用这个技
 - **[zichen0116](https://github.com/zichen0116)** — CODE_OF_CONDUCT.md (#686)
 - **[dfwqdyl-ui](https://github.com/dfwqdyl-ui)** — 模型 ID 大小写兼容性报告 (#729)
 - **[Oliver-ZPLiu](https://github.com/Oliver-ZPLiu)** — `working...` 卡死状态 Bug 报告和 Windows 剪贴板兜底修复 (#738, #850)
-- **[reidliu41](https://github.com/reidliu41)** — 退出后的恢复提示、工作区信任持久化、Ollama provider 支持、思考块流式终结修复、审批流程简化、模型选择器 Esc 修复、用户消息高亮、provider 选择器滚动 (#863, #870, #921, #1078, #2143, #2056, #1995, #2241)
+- **[reidliu41](https://github.com/reidliu41)** — 退出后的恢复提示、工作区信任持久化、Ollama provider 支持、思考块流式终结修复、审批流程简化、模型选择器 Esc 修复、用户消息高亮、provider 选择器滚动、`/new` 会话命令 (#863, #870, #921, #1078, #2143, #2056, #1995, #2241, #2235)
 - **[xieshutao](https://github.com/xieshutao)** — 纯 Markdown skill 兜底解析 (#869)
 - **[GK012](https://github.com/GK012)** — npm wrapper 的 `--version` 兜底 (#885)
 - **[y0sif](https://github.com/y0sif)** — 直接子智能体完成后唤醒父级 turn loop (#901)

@@ -45,6 +45,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as a vendor-neutral project instructions fallback (#2156).
 - **DeepSeek V4 Pro pricing permanent.** The 75% discount is now
   permanent, reflected in the pricing model (#1937).
+- **`/new` session command.** `/new [--force]` starts a fresh saved session
+  from inside the TUI, distinct from `/clear`. Respects active work
+  blockers; `--force` discards unsaved input (#2235).
 - **Docker toolbox contract docs.** Added custom-image contract,
   examples, and toolbox documentation (#2217).
 
@@ -110,7 +113,7 @@ Thanks to contributors whose PRs landed in this release:
 **@aboimpinto** (#1910),
 **@HUQIANTAO** (#2240),
 **@mvanhorn** (#2156),
-and **@reidliu41** (#2241).
+and **@reidliu41** (#2241, #2235).
 
 ## [0.8.46] - 2026-05-26
 
