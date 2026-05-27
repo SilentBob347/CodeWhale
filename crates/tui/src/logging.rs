@@ -101,11 +101,17 @@ pub fn warn(message: impl AsRef<str>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::{Mutex, OnceLock};
+    use std::sync::{Mutex, MutexGuard, OnceLock};
 
     fn logging_state_test_lock() -> &'static Mutex<()> {
         static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
         LOCK.get_or_init(|| Mutex::new(()))
+    }
+
+    fn lock_logging_state_test() -> MutexGuard<'static, ()> {
+        logging_state_test_lock()
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
     }
 
     fn reset_logging_state() {
@@ -145,7 +151,7 @@ mod tests {
 
     #[test]
     fn set_verbose_respects_alt_screen_suppression() {
-        let _guard = logging_state_test_lock().lock().unwrap();
+        let _guard = lock_logging_state_test();
         reset_logging_state();
         IN_ALT_SCREEN.store(true, Ordering::SeqCst);
         set_verbose(true);
@@ -160,7 +166,7 @@ mod tests {
 
     #[test]
     fn set_verbose_restores_requested_state_outside_alt_screen() {
-        let _guard = logging_state_test_lock().lock().unwrap();
+        let _guard = lock_logging_state_test();
         reset_logging_state();
         set_verbose(true);
         assert!(is_verbose());
