@@ -702,17 +702,30 @@ impl ToolRegistryBuilder {
             .with_tool(Arc::new(AutomationReadTool))
     }
 
-    /// Include web search tools.
+    /// Include web search and fetch tools.
+    ///
+    /// These are feature-gated behind `Feature::WebSearch` in `tool_setup.rs`.
+    /// `finance` is registered separately via `with_finance_tool()` and is
+    /// NOT gated behind the web-search feature.
     #[must_use]
     pub fn with_web_tools(self) -> Self {
         use super::fetch_url::FetchUrlTool;
-        use super::finance::FinanceTool;
         use super::web_run::WebRunTool;
         use super::web_search::WebSearchTool;
         self.with_tool(Arc::new(WebSearchTool))
             .with_tool(Arc::new(FetchUrlTool))
-            .with_tool(Arc::new(FinanceTool::new()))
             .with_tool(Arc::new(WebRunTool))
+    }
+
+    /// Include the `finance` market-data tool.
+    ///
+    /// This tool is registered unconditionally for agent modes and is NOT
+    /// gated behind `Feature::WebSearch` (it fetches financial data, not
+    /// web search results).
+    #[must_use]
+    pub fn with_finance_tool(self) -> Self {
+        use super::finance::FinanceTool;
+        self.with_tool(Arc::new(FinanceTool::new()))
     }
 
     /// Register the `image_analyze` vision tool.
@@ -882,17 +895,21 @@ impl ToolRegistryBuilder {
         self
     }
 
-    /// Include all agent tools (file tools + shell + note + search + patch).
+    /// Include all agent tools (file tools + shell + note + search).
+    ///
+    /// Web and patch tools are NOT registered here — callers must add them
+    /// via `.with_web_tools()` and `.with_patch_tools()` after checking
+    /// feature flags (see `tool_setup.rs`). This prevents double-registration
+    /// when `tool_setup.rs` conditionally registers them on top of
+    /// `with_agent_tools`.
     #[must_use]
     pub fn with_agent_tools(self, allow_shell: bool) -> Self {
         let builder = self
             .with_file_tools()
             .with_note_tool()
             .with_search_tools()
-            .with_web_tools()
             .with_user_input_tool()
             .with_parallel_tool()
-            .with_patch_tools()
             .with_git_tools()
             .with_git_history_tools()
             .with_diagnostics_tool()
@@ -905,7 +922,8 @@ impl ToolRegistryBuilder {
             .with_runtime_task_tools()
             .with_revert_turn_tool()
             .with_pandoc_tools()
-            .with_image_ocr_tools();
+            .with_image_ocr_tools()
+            .with_finance_tool();
 
         if allow_shell {
             builder.with_shell_tools().with_runtime_task_shell_tools()
@@ -1509,11 +1527,26 @@ mod tests {
     }
 
     #[test]
-    fn test_builder_with_web_tools_includes_finance() {
+    fn test_builder_with_web_tools_no_longer_includes_finance() {
         let tmp = tempdir().expect("tempdir");
         let ctx = ToolContext::new(tmp.path().to_path_buf());
 
         let registry = ToolRegistryBuilder::new().with_web_tools().build(ctx);
+
+        // finance was moved to with_finance_tool() in v0.8.49;
+        // with_web_tools() now only registers web search / fetch / web.run
+        assert!(registry.contains("web_search"));
+        assert!(registry.contains("fetch_url"));
+        assert!(registry.contains("web.run"));
+        assert!(!registry.contains("finance"));
+    }
+
+    #[test]
+    fn test_builder_with_finance_tool() {
+        let tmp = tempdir().expect("tempdir");
+        let ctx = ToolContext::new(tmp.path().to_path_buf());
+
+        let registry = ToolRegistryBuilder::new().with_finance_tool().build(ctx);
 
         assert!(registry.contains("finance"));
     }
